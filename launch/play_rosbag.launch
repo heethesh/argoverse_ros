@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <arg name="filename" default="$(find argoverse_ros)/bags/c6911883-1843-3727-8eaa-41dc8cda8993.bag" />
+
+    <!-- Play rosbag record -->
+    <node 
+        pkg="rosbag"
+        type="play"
+        name="player"
+        output="screen"
+        args="--clock --quiet --loop --rate=1 $(arg filename)" />
+
+</launch>

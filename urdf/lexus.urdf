@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot name="car">
+  <link name="egovehicle">
+    <visual name="base_visual">
+      <origin xyz="1 0 0.0" rpy="1.57 0 3.14" />
+      <geometry>
+        <mesh filename="package://argoverse_ros/mesh/lexus.dae" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </visual>
+  </link>
+</robot>

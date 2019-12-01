@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <!-- Play rosbag record -->
+    <include file="$(find argoverse_ros)/launch/play_rosbag.launch">
+        <arg name="filename" value="$(find argoverse_ros)/bags/c6911883-1843-3727-8eaa-41dc8cda8993.bag" />
+    </include>
+
+    <!-- Load vehicle model -->
+    <include file="$(find argoverse_ros)/launch/lexus.launch" />
+
+    <!-- Launch Rviz -->
+    <node
+        type="rviz" name="rviz" pkg="rviz" args="-d $(find argoverse_ros)/cfg/argoverse.rviz" />
+
+</launch>
