@@ -31,7 +31,7 @@ ROS_CV = '/opt/ros/' + os.environ['ROS_DISTRO'] + '/lib/python2.7/dist-packages'
 if python_version.startswith('3'):
     if ROS_CV in sys.path: sys.path.remove(ROS_CV)
     import cv2
-    print('OpenCV Version (Build Py3):', cv2.__version__)
+    print('OpenCV Version (Py3):', cv2.__version__)
     add_path(ROS_CV)
 else:
     import cv2

@@ -15,6 +15,7 @@ from __future__ import print_function, absolute_import, division
 import os
 import json
 import pprint
+import argparse
 
 # External modules
 import numpy as np
@@ -38,17 +39,17 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 class BagConverter:
-    def __init__(self, dataset_dir, log_id, output_dir, cameras_list):
+    def __init__(self, args):
         # Setup Argoverse loader
-        self.dataset_dir = dataset_dir
-        self.log_id = log_id
+        self.dataset_dir = args.dataset_dir
+        self.log_id = args.log_id
         self.argoverse_loader = ArgoverseTrackingLoader(self.dataset_dir)
         self.argoverse_data = self.argoverse_loader.get(self.log_id)
         print(self.argoverse_data)
 
         # List of cameras to publish
         self.cameras_list = [camera for camera in self.argoverse_loader.CAMERA_LIST
-                             if camera in cameras_list]
+                             if camera in args.cameras]
         self.load_camera_info()
 
         # Images timestamps
@@ -71,7 +72,7 @@ class BagConverter:
         self.lidar_timestamps = list(self.lidar_files_dict.keys())
 
         # ROSBAG output path
-        self.output_filename = os.path.join(output_dir, '%s_no_images.bag' % self.log_id)
+        self.output_filename = os.path.join(args.output_dir, '%s_no_images.bag' % self.log_id)
         self.bag = rosbag.Bag(self.output_filename, 'w')
 
         # Topic names
@@ -155,10 +156,28 @@ class BagConverter:
 
 
 if __name__ == '__main__':
-    bag_converter = BagConverter(
-        dataset_dir='/home/heethesh/Datasets/Argoverse/argoverse-tracking/sample',
-        log_id='c6911883-1843-3727-8eaa-41dc8cda8993',
-        output_dir='./',
-        cameras_list=['stereo_front_left'])
+    # Argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dataset_dir', type=str, required=True,
+        help='Path to dataset directory containing the logs')
+    parser.add_argument('--log_id', type=str, required=True,
+        help='Argoverse sequence log ID')
+    parser.add_argument('--output_dir', type=str, required=True,
+        help='Bag file output directory')
+    parser.add_argument('--cameras', nargs='+', default=[],
+        help='List of cameras to add to the bag file.\
+        Cameras available:\
+        ring_front_center,\
+        ring_front_left,\
+        ring_front_right,\
+        ring_rear_left,\
+        ring_rear_right,\
+        ring_side_left,\
+        ring_side_right,\
+        stereo_front_left,\
+        stereo_front_right]')
+    args = parser.parse_args()
 
+    # Start conversion
+    bag_converter = BagConverter(args)
     bag_converter.convert()

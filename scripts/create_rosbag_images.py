@@ -14,6 +14,7 @@ from __future__ import print_function, absolute_import, division
 # Built-in modules
 import os
 import json
+import argparse
 
 # External modules
 import numpy as np
@@ -31,12 +32,12 @@ import utils
 
 
 class BagImageConverter:
-    def __init__(self, log_id, output_dir):
+    def __init__(self, args):
         # ROSBAG output path
-        self.log_id = log_id
-        self.inter_bag_file = os.path.join(output_dir, '%s_no_images.bag' % self.log_id)
+        self.log_id = args.log_id
+        self.inter_bag_file = os.path.join(args.output_dir, '%s_no_images.bag' % self.log_id)
         self.inter_bag = rosbag.Bag(self.inter_bag_file)
-        self.output_filename = os.path.join(output_dir, '%s.bag' % self.log_id)
+        self.output_filename = os.path.join(args.output_dir, '%s.bag' % self.log_id)
         self.bag = rosbag.Bag(self.output_filename, 'w')
 
         # Load image data
@@ -84,8 +85,14 @@ class BagImageConverter:
 
 
 if __name__ == '__main__':
-    bag_converter = BagImageConverter(
-        log_id='c6911883-1843-3727-8eaa-41dc8cda8993',
-        output_dir='./')
+    # Argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--log_id', type=str, required=True,
+        help='Argoverse sequence log ID')
+    parser.add_argument('--output_dir', type=str, required=True,
+        help='Bag file output directory')
+    args = parser.parse_args()
 
+    # Start conversion
+    bag_converter = BagImageConverter(args)
     bag_converter.convert()
