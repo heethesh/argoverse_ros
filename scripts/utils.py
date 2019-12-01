@@ -27,8 +27,6 @@ from sensor_msgs.msg import Image, CameraInfo
 from sensor_msgs.msg import PointCloud2, PointField
 from geometry_msgs.msg import Vector3, Quaternion, Transform, TransformStamped
 
-from argoverse.utils.json_utils import read_json_file
-
 CV_BRIDGE = CvBridge()
 
 
@@ -41,7 +39,6 @@ def make_image_message(img, header, coding='bgr8'):
     if len(img.shape) == 2:
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     # Create image using CV bridge
-    print('\n', img.shape)
     msg = CV_BRIDGE.cv2_to_imgmsg(img, coding)
     msg.header = header
     return msg
@@ -116,11 +113,11 @@ def make_transform_stamped_message(parent_frame, child_frame, transform):
 
 
 def argoverse_pose_to_transform_message(dataset_dir, log_id,
-    parent_frame, child_frame, timestamp):
+    parent_frame, child_frame, timestamp, read_json_file):
     # Load pose from JSON file
-    pose_fpath = f'{dataset_dir}/{log_id}/poses/city_SE3_egovehicle_{timestamp}.json'
+    pose_fpath = '%s/%s/poses/city_SE3_egovehicle_%s.json' % (dataset_dir, log_id, str(timestamp))
     if not Path(pose_fpath).exists():
-        print(f'missing pose {timestamp}')
+        print('Missing pose:', timestamp)
         return None
     pose_city_to_ego = read_json_file(pose_fpath)
 
