@@ -27,7 +27,7 @@ python_version = platform.python_version()
 print('Python', python_version)
 
 # Handle OpenCV
-ROS_CV = '/opt/ros/kinetic/lib/python2.7/dist-packages'
+ROS_CV = '/opt/ros/' + os.environ['ROS_DISTRO'] + '/lib/python2.7/dist-packages'
 if python_version.startswith('3'):
     if ROS_CV in sys.path: sys.path.remove(ROS_CV)
     import cv2

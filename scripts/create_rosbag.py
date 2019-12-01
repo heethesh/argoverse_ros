@@ -11,50 +11,158 @@ Date    : Nov 30, 2019
 # Python 2/3 compatibility
 from __future__ import print_function, absolute_import, division
 
+# Built-in modules
 import os
+import pprint
 
 # External modules
 import numpy as np
+from tqdm import tqdm
+from plyfile import PlyData, PlyElement
 
 # Handle OpenCV import
-import import_cv2
+from import_cv2 import *
 
 # ROS modules
 import rospy
 import rosbag
-from sensor_msgs.msg import Image, CameraInfo
+from std_msgs.msg import Header
+from tf2_msgs.msg import TFMessage
 
 import utils
 from argoverse.data_loading.argoverse_tracking_loader import ArgoverseTrackingLoader
 
+pp = pprint.PrettyPrinter(indent=4)
+
 
 class BagConverter:
-    def __init__(self, cameras_list):
-        self.dataset_path = '/mnt/data/Datasets/Argoverse/argoverse-tracking/sample'
-        self.log_id = 'c6911883-1843-3727-8eaa-41dc8cda8993'
-
-        self.argoverse_loader = ArgoverseTrackingLoader(self.dataset_path)
+    def __init__(self, dataset_dir, log_id, output_dir, cameras_list):
+        # Setup Argoverse loader
+        self.dataset_dir = dataset_dir
+        self.log_id = log_id
+        self.argoverse_loader = ArgoverseTrackingLoader(self.dataset_dir)
         self.argoverse_data = self.argoverse_loader.get(self.log_id)
-        
+        print(self.argoverse_data)
+
         # List of cameras to publish
-        self.cameras_list = cameras_list
+        self.cameras_list = [camera for camera in self.argoverse_loader.CAMERA_LIST
+                             if camera in cameras_list]
         self.load_camera_info()
 
+        # Images timestamps
+        self.image_files_dict = {
+            camera: self.argoverse_data.timestamp_image_dict[camera]
+            for camera in self.cameras_list}
+        self.images_timestamps = {
+            camera: list(self.image_files_dict[camera].keys())
+            for camera in self.cameras_list}
+
+        # LiDAR timestamps
+        self.lidar_files_dict = self.argoverse_data.timestamp_lidar_dict
+        self.lidar_timestamps = list(self.lidar_files_dict.keys())
+
+        # ROSBAG output path
+        self.output_filename = os.path.join(output_dir, self.log_id + '.bag')
+        self.bag = rosbag.Bag(self.output_filename, 'w')
+
+        # Topic names
+        self.lidar_topic = '/argoverse/lidar/pointcloud'
+        self.image_topic_template = '/argoverse/%s/camera_info'
+        self.camera_info_topic_template = '/argoverse/%s/image_rect'
+
+        # TF frames
+        self.map_frame = 'city'
+        self.vehicle_frame = 'egovehicle'
+        self.load_camera_static_tf()
+
     def load_camera_info(self):
+        # Make a dictionary of CameraInfo messages for all cameras listed
         self.camera_info_dict = {
-            camera: self.argoverse_data.get_calibration(camera)
-            for camera in self.argoverse_loader.CAMERA_LIST
-            if camera in self.cameras_list
-            }
+            camera: utils.make_camera_info_message(
+                self.argoverse_data.get_calibration(camera))
+            for camera in self.cameras_list}
 
-        cc = self.camera_info_dict[self.cameras_list[0]].camera_config
-        print(utils.make_camera_info_message(cc))
-        # print(camera, self.argoverse_loader.CAMERA_LIST)
-        # calib = self.argoverse_data.get_calibration(camera)
-        # print(calib.__dict__)
+    def load_camera_static_tf(self):
+        # Make a dictionary of static TF messages for all cameras listed
+        self.camera_static_tf_dict = {
+            camera: utils.make_transform_stamped_message(self.vehicle_frame,
+                camera, self.argoverse_data.get_calibration(
+                    camera).calib_data['value']['vehicle_SE3_camera_'])
+            for camera in self.argoverse_loader.CAMERA_LIST}
 
+    def get_image_messages(self, camera, timestamp):
+        # Make common header message
+        header = Header()
+        header.frame_id = camera
+        header.stamp = utils.ros_time_from_nsecs(timestamp)
+
+        # Make image message
+        img = cv2.imread(self.image_files_dict[camera][timestamp])
+        image_msg = utils.make_image_message(img, header)
+
+        # Make camera info message
+        camera_info_msg = self.camera_info_dict[camera]
+        camera_info_msg.header.stamp = utils.ros_time_from_nsecs(timestamp)
+
+        return image_msg, camera_info_msg
+
+    def get_lidar_message(self, timestamp):
+        # Load ply file
+        filename = self.lidar_files_dict[timestamp]
+        with open(filename, 'rb') as f:
+            plydata = PlyData.read(f)
+
+        # Make header message
+        header = Header()
+        header.frame_id = self.vehicle_frame  # LiDAR frame is ego vehicle frame
+        header.stamp = utils.ros_time_from_nsecs(timestamp)
+
+        # Make point cloud message (both LiDARs combined - 64 rings)
+        pcl_msg = utils.make_pointcloud_message(header, plydata)
+        return pcl_msg
+
+    def convert(self):
+        # Keep first timestamp for publishing static TF message
+        static_timestamp = self.lidar_timestamps[0]
+
+        # Publish LiDAR PointCloud messages
+        # for timestamp in tqdm(self.lidar_timestamps, desc='LiDAR, Pose'):
+        #     lidar_msg = self.get_lidar_message(timestamp)
+        #     self.bag.write(self.lidar_topic, lidar_msg,
+        #         utils.ros_time_from_nsecs(timestamp))
+
+        #     # Publish ego vehicle pose
+        #     tf_msg = utils.argoverse_pose_to_transform_message(self.dataset_dir,
+        #         self.log_id, self.map_frame, self.vehicle_frame, timestamp)
+        #     self.bag.write('/tf', tf_msg, utils.ros_time_from_nsecs(timestamp))
+
+        # Publish camera messages
+        for camera in tqdm(self.cameras_list, desc='Images, CameraInfo'):
+            static_timestamp = min(static_timestamp, self.images_timestamps[camera][0])
+            for timestamp in tqdm(self.images_timestamps[camera], desc=camera, leave=False):
+                image_msg, camera_info_msg = self.get_image_messages(camera, timestamp)
+                self.bag.write(self.image_topic_template % camera, image_msg,
+                    utils.ros_time_from_nsecs(timestamp))
+                self.bag.write(self.camera_info_topic_template % camera, camera_info_msg,
+                    utils.ros_time_from_nsecs(timestamp))
+
+        # Publish static TF messages
+        tf_msg = TFMessage()
+        for camera in tqdm(self.camera_static_tf_dict, desc='Static TF'):
+            msg = self.camera_static_tf_dict[camera]
+            msg.header.stamp = utils.ros_time_from_nsecs(static_timestamp)
+            tf_msg.transforms.append(msg)
+        self.bag.write('/tf_static', tf_msg, utils.ros_time_from_nsecs(static_timestamp))
+
+        # Close rosbag file
+        self.bag.close()
 
 
 if __name__ == '__main__':
-    bag_converter = BagConverter(['stereo_front_left'])
+    bag_converter = BagConverter(
+        dataset_dir='/home/heethesh/Datasets/Argoverse/argoverse-tracking/sample',
+        log_id='c6911883-1843-3727-8eaa-41dc8cda8993',
+        output_dir='./',
+        cameras_list=['stereo_front_left'])
 
+    bag_converter.convert()
