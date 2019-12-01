@@ -14,7 +14,6 @@ from __future__ import print_function, absolute_import, division
 # Built-in modules
 import os
 import json
-import pprint
 import argparse
 
 # External modules
@@ -34,8 +33,6 @@ from tf2_msgs.msg import TFMessage
 import utils
 from argoverse.utils.json_utils import read_json_file
 from argoverse.data_loading.argoverse_tracking_loader import ArgoverseTrackingLoader
-
-pp = pprint.PrettyPrinter(indent=4)
 
 
 class BagConverter:
