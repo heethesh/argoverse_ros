@@ -75,7 +75,7 @@ Run the following command to visualize the dtaa in Rviz.
 roslaunch argoverse_ros Rviz.launch
 ```
 
-![Argoverse on Rviz](docs/argoverse-rviz-1.jpg "Argoverse on Rviz")
+![Argoverse on Rviz](docs/argoverse-rviz-1.png "Argoverse on Rviz")
 
 ## TODO
 - [ ] Batch log conversion.
