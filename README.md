@@ -1,7 +1,7 @@
 # Argoverse ROS
 ROS API and utils for the Argoverse dataset.
 
-![Argoverse on ROS](https://raw.githubusercontent.com/heethesh/argoverse_ros/master/docs/argoverse-pcl.jpg "Argoverse on ROS")
+![Argoverse on ROS](docs/argoverse-pcl.jpg "Argoverse on ROS")
 
 ## Quick Guide
 Currently, you can convert the Argoverse-Tracking sequences to ROS bag files. Clone the `argoverse_ros` ROS package into your workspace `src` directory.
@@ -75,15 +75,15 @@ Run the following command to visualize the dtaa in Rviz.
 roslaunch argoverse_ros Rviz.launch
 ```
 
-![Argoverse on Rviz](https://raw.githubusercontent.com/heethesh/argoverse_ros/master/docs/argoverse-rviz-1.jpg "Argoverse on Rviz")
+![Argoverse on Rviz](docs/argoverse-rviz-1.jpg "Argoverse on Rviz")
 
 ## TODO
-[ ] Batch log conversion.
-[ ] Verfiy quaternion convention from Argoverse in TF.
-[ ] Option to resize images.
-[ ] Handle CameraInfo messages for stereo images.
-[ ] Publish ground truth 3D bounding box messages and visualization markers.
-[ ] Support for motion forecasting logs.
+- [ ] Batch log conversion.
+- [ ] Verfiy quaternion convention from Argoverse in TF.
+- [ ] Option to resize images.
+- [ ] Handle CameraInfo messages for stereo images.
+- [ ] Publish ground truth 3D bounding box messages and visualization markers.
+- [ ] Support for motion forecasting logs.
 
 ## Links
 - [Argoverse API](https://github.com/argoai/argoverse-api)
