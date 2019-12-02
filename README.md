@@ -3,6 +3,13 @@ ROS API and utils for the Argoverse dataset.
 
 ![Argoverse on ROS](docs/argoverse-pcl.jpg "Argoverse on ROS")
 
+## Table of Contents
+
+- [Quick Guide](#quick-guide)
+- [Installation](#installation)
+- [TODO](#todo)
+- [Links](#links)
+
 ## Quick Guide
 Currently, you can convert the Argoverse-Tracking sequences to ROS bag files. Clone the `argoverse_ros` ROS package into your workspace `src` directory.
 
@@ -26,6 +33,14 @@ The following topics will be created in the bag file (saved to `argoverse_ros/ba
 /tf
 /tf_static
 ```
+
+Run the following command to visualize the data in Rviz.
+
+```
+roslaunch argoverse_ros rviz.launch
+```
+
+![Argoverse on Rviz](docs/argoverse-rviz-1.png "Argoverse on Rviz")
 
 ## Installation
 The Argoverse API only supports Python3.6 and above. Install Python3.6 and the dependent libraries if you don't already have it.
@@ -68,15 +83,6 @@ source devel/setup.bash
 
 NOTE: There are issues with running `CvBridge` with Python3. To keep things simple, all messages are converted to ROS topics in the bag file using Python3.6 (which the Argoverse API requires) except for images which are appended later into the bag file using Python2.7. The `create_rosbag.sh` script will do it all for you.
 
-## Visualize in Rviz
-Run the following command to visualize the dtaa in Rviz.
-
-```
-roslaunch argoverse_ros Rviz.launch
-```
-
-![Argoverse on Rviz](docs/argoverse-rviz-1.png "Argoverse on Rviz")
-
 ## TODO
 - [ ] Batch log conversion.
 - [ ] Verfiy quaternion convention from Argoverse in TF.
@@ -88,3 +94,4 @@ roslaunch argoverse_ros Rviz.launch
 ## Links
 - [Argoverse API](https://github.com/argoai/argoverse-api)
 - [Argoverse Dataset](https://www.argoverse.org/)
+- The vehicle URDF was borrowed from [Autoware](https://gitlab.com/autowarefoundation/autoware.ai/visualization/tree/master/vehicle_description)
