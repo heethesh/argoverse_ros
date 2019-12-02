@@ -35,6 +35,7 @@ class BagImageConverter:
     def __init__(self, args):
         # ROSBAG output path
         self.log_id = args.log_id
+        if not os.path.isdir(args.output_dir): os.makedirs(args.output_dir)
         self.inter_bag_file = os.path.join(args.output_dir, '%s_no_images.bag' % self.log_id)
         self.inter_bag = rosbag.Bag(self.inter_bag_file)
         self.output_filename = os.path.join(args.output_dir, '%s.bag' % self.log_id)
@@ -82,6 +83,7 @@ class BagImageConverter:
         # Close rosbag file
         self.inter_bag.close()
         self.bag.close()
+        print('\nBag file saved to', self.output_filename)
 
 
 if __name__ == '__main__':

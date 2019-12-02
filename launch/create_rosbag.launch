@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="dataset_dir" default="~/Argoverse/argoverse-tracking/sample"/>
+    <arg name="log_id" default="c6911883-1843-3727-8eaa-41dc8cda8993"/>
+    <arg name="output_dir" default="$(find argoverse_ros)/bags"/>
+    <arg name="cameras" default="ring_front_center ring_front_left"/>
+
+    <node
+        name="create_rosbag"
+        pkg="argoverse_ros"
+        type="create_rosbag.sh"
+        output="screen"
+        args="$(arg dataset_dir) $(arg log_id) $(arg output_dir) $(find argoverse_ros) $(arg cameras)" />
+
+</launch>

@@ -90,8 +90,9 @@ def make_vector3_message(vector):
     return msg
 
 
-def make_quaternion_message(coefficients, roll=False):
-    if roll: coefficients = np.roll(coefficients, 1)  # W, X, Y, Z
+def make_quaternion_message(coefficients, to_xyzw=True):
+    # Convert WXYZ to XYZW is flag set
+    if to_xyzw: coefficients = np.roll(coefficients, -1)
     msg = Quaternion()
     msg.x = coefficients[0]
     msg.y = coefficients[1]

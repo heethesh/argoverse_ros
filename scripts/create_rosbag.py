@@ -69,6 +69,7 @@ class BagConverter:
         self.lidar_timestamps = list(self.lidar_files_dict.keys())
 
         # ROSBAG output path
+        if not os.path.isdir(args.output_dir): os.makedirs(args.output_dir)
         self.output_filename = os.path.join(args.output_dir, '%s_no_images.bag' % self.log_id)
         self.bag = rosbag.Bag(self.output_filename, 'w')
 
@@ -174,6 +175,7 @@ if __name__ == '__main__':
         stereo_front_left,\
         stereo_front_right]')
     args = parser.parse_args()
+    args.cameras = sum([camera.split() for camera in args.cameras], [])
 
     # Start conversion
     bag_converter = BagConverter(args)
