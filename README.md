@@ -1,3 +1,7 @@
+[![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)](https://www.python.org/downloads/release/python-270/)
+[![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![License: BSD](https://img.shields.io/badge/License-BSD-yellow.svg)](./LICENSE)
+
 # Argoverse ROS
 ROS API and utils for the Argoverse dataset.
 
@@ -12,6 +16,8 @@ ROS API and utils for the Argoverse dataset.
 
 ## Quick Guide
 Currently, you can convert the Argoverse-Tracking sequences to ROS bag files. Clone the `argoverse_ros` ROS package into your workspace `src` directory.
+
+#### Create ROS bags
 
 Run the following command to convert a log sequence to a bag file. Example to convert the sample tracking sequence log.
 
@@ -33,6 +39,8 @@ The following topics will be created in the bag file (saved to `argoverse_ros/ba
 /tf
 /tf_static
 ```
+
+#### Visualize in Rviz
 
 Run the following command to visualize the data in Rviz.
 
