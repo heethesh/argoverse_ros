@@ -17,7 +17,7 @@ ROS API and utils for the Argoverse dataset.
 ## Quick Guide
 Currently, you can convert the Argoverse-Tracking sequences to ROS bag files. Clone the `argoverse_ros` ROS package into your workspace `src` directory.
 
-#### Create ROS bags
+### Create ROS bags
 
 Run the following command to convert a log sequence to a bag file. Example to convert the sample tracking sequence log.
 
@@ -40,7 +40,7 @@ The following topics will be created in the bag file (saved to `argoverse_ros/ba
 /tf_static
 ```
 
-#### Visualize in Rviz
+### Visualize in Rviz
 
 Run the following command to visualize the data in Rviz.
 
@@ -92,12 +92,20 @@ source devel/setup.bash
 NOTE: There are issues with running `CvBridge` with Python3. To keep things simple, all messages are converted to ROS topics in the bag file using Python3.6 (which the Argoverse API requires) except for images which are appended later into the bag file using Python2.7. The `create_rosbag.sh` script will do it all for you.
 
 ## TODO
+#### ROS Bag API
+- [ ] Simplify image conversion using CvBridge (maybe switch to Python3.6 completely).
 - [ ] Batch log conversion.
 - [ ] Verfiy quaternion convention from Argoverse in TF.
 - [ ] Option to resize images.
 - [ ] Handle CameraInfo messages for stereo images.
-- [ ] Publish ground truth 3D bounding box messages and visualization markers.
+- [ ] Support ground truth 3D bounding box messages and visualization markers.
+- [ ] Support tracker annotations.
+- [ ] Support for HD map annotations.
 - [ ] Support for motion forecasting logs.
+
+#### Other Features
+- [ ] Publish logs directly from file.
+- [ ] Integrate SLAM/Visual Odometry packages.
 
 ## Links
 - [Argoverse API](https://github.com/argoai/argoverse-api)
