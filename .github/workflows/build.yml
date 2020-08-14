@@ -1,0 +1,26 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:bionic
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup ROS
+      uses: ros-tooling/setup-ros@0.0.25
+      with:
+        required-ros-distributions: melodic
+    - name: Build and test ROS package
+      uses: ros-tooling/action-ros-ci@0.0.19
+      with:
+        package-name: argoverse_ros
+        source-ros-binary-installation: melodic
+        target-ros1-distro: melodic
+        vcs-repo-file-url: ""
